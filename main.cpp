@@ -1,8 +1,11 @@
 #include <iostream>
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include "SPHSolver.h"
 
 using namespace std;
+
+SPHSolver *fluid;
 
 struct point {
   float x, y, z;
@@ -53,18 +56,62 @@ void draw_stuff()
   for(i=0;i<4;i++) glVertex3f(front[i].x,front[i].y,front[i].z);
   glEnd();
   glFlush();
+
+  // draw particles
+  glColor3f(1.0f, 1.0f, 0.0f);
+  glPointSize(2.5f);
+  glBegin(GL_POINTS);
+  vector<SPHParticle>::iterator pi = fluid->particles.begin();
+  while(pi != fluid->particles.end()) {
+    vector2 position = pi->position;
+    glVertex3f(position.x, position.y, 0.0f);
+    ++pi;
+  }
+  glEnd();
+  glFlush();
 }
 
 
+void initParticleSim() {
+  srand (static_cast <unsigned> (time(0)));
+
+  fluid = new SPHSolver(100, -1.0f, 1.0f);
+  fluid->update(0.045f);
+
+}
+
+
+void callbackKeyboard( unsigned char key, int x, int y )
+{
+  switch (key)
+  {
+    case 'q':
+    cout << "Exiting Program" << endl;
+    exit(0);
+
+    default:
+    break;
+  }
+}
+
 int main(int argc, char** argv)
 {
+  initParticleSim();
+
+  // test
+  for (unsigned long i = 0; i < 100; ++i) {
+    cout << fluid->particles.at(i).acceleration.x << "   " << fluid->particles.at(i).acceleration.y << endl;
+  }
+
   glutInit(&argc,argv);
+
   glutInitDisplayMode(GLUT_RGBA|GLUT_MULTISAMPLE);
   glutInitWindowSize(512,512);
   glutInitWindowPosition(100,50);
-  glutCreateWindow("my_cool_cube");
+  glutCreateWindow("2D SPH Particle Simulation");
   setup_the_viewvolume();
   glutDisplayFunc(draw_stuff);
+  glutKeyboardFunc(&callbackKeyboard);
   glutMainLoop();
   return 0;
 }
