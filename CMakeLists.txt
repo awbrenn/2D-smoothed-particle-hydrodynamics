@@ -11,6 +11,6 @@ find_library(X11 "X11")
 find_library(M "m")
 find_library(XMU "Xmu")
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp SPHParticle.cpp SPHParticle.h SPHForce.cpp SPHForce.h SPHSolver.cpp SPHSolver.h)
 add_executable(sph_particle ${SOURCE_FILES})
 target_link_libraries(sph_particle ${M} ${XMU} ${X11} ${GLUT} ${GL} ${GLU})
