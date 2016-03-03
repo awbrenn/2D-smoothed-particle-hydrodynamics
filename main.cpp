@@ -93,8 +93,20 @@ void callbackIdle() {
 
 void callbackKeyboard( unsigned char key, int x, int y )
 {
+  float new_dampening;
   switch (key)
   {
+    case ',' : case '<':
+      new_dampening = fluid->dampening - 0.01f;
+      fluid->dampening = new_dampening >= 0.0f ? new_dampening : 0.0f;
+      cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << endl;
+      break;
+
+    case '.': case '>':
+      fluid->dampening += 0.01f;
+      cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << endl;
+      break;
+
     case 'q':
     cout << "Exiting Program" << endl;
     exit(0);
@@ -102,6 +114,15 @@ void callbackKeyboard( unsigned char key, int x, int y )
     default:
     break;
   }
+}
+
+
+void PrintUsage()
+{
+  cout << "fluid_simulator keyboard choices\n";
+  cout << "./,      increase/decrease % of energy retained after bounce\n";
+  cout << "spacebar paused the simulation. pressing it again un-pauses the simulation\n";
+  cout << "q        exits the program\n";
 }
 
 
