@@ -4,6 +4,11 @@
 
 #include "SPHSolver.h"
 
+void handleError(const char *error_message, bool kill) {
+  std::cerr << error_message << std::endl;
+  if (kill) exit(-1);
+}
+
 SPHSolver::SPHSolver(unsigned int number_of_particles, const float _upper_bound, const float _lower_bound) {
   upper_bound = _upper_bound;
   lower_bound = _lower_bound;
@@ -85,9 +90,8 @@ void SPHSolver::update(const float dt, UPDATE_FUNCTION function) {
         sixth(dt);
         break;
       default:
-      std::cerr << "Error in SPHSolver::update(const float dt, UPDATE_FUNCTION function): Invalid UPDATE_FUNCTION. "
-                           "Use LEAP_FROG or SIXTH";
-        exit(-1);
+        handleError("Error in SPHSolver::update(const float dt, UPDATE_FUNCTION function): Invalid UPDATE_FUNCTION. "
+                          "Use LEAP_FROG or SIXTH", true);
         break;
   }
 }
