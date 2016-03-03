@@ -119,7 +119,7 @@ void callbackKeyboard( unsigned char key, int x, int y )
 
 void PrintUsage()
 {
-  cout << "fluid_simulator keyboard choices\n";
+  cout << "sph_fluid_simulator keyboard choices\n";
   cout << "./,      increase/decrease % of energy retained after bounce\n";
   cout << "spacebar paused the simulation. pressing it again un-pauses the simulation\n";
   cout << "q        exits the program\n";
