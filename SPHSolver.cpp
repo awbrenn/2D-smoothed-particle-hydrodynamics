@@ -20,16 +20,37 @@ SPHSolver::SPHSolver(unsigned int number_of_particles, const float _upper_bound,
 
 
 void SPHSolver::enforceBoundary(SPHParticle *p) {
+
+  // enforce top and bottom bounds
   if (p->position.y < lower_bound) {
     p->position.y = lower_bound - p->position.y;
     p->velocity.y = (-1.0f)*p->velocity.y*dampening;
   }
+  else if (p->position.y > upper_bound) {
+    p->position.y = upper_bound - (p->position.y - upper_bound);
+    p->velocity.y = (-1.0f)*p->velocity.y*dampening;
+  }
+  // enforce left to right bounds
+
+  if (p->position.x < lower_bound) {
+    p->position.x = lower_bound - p->position.x;
+    p->velocity.x = (-1.0f)*p->velocity.x*dampening;
+  }
+  else if (p->position.x > upper_bound) {
+    p->position.x = upper_bound - (p->position.x - upper_bound);
+    p->velocity.x = (-1.0f)*p->velocity.x*dampening;
+  }
 }
 
 
-void SPHSolver::update(const float dt) {
+void SPHSolver::leapFrog(float dt) {
+  dt /= 2.0f;
   std::vector<SPHParticle>::iterator pi = particles.begin();
   while(pi != particles.end()) {
+    pi->position.x += pi->velocity.x*dt;
+    pi->position.y += pi->velocity.y*dt;
+    enforceBoundary(&(*pi));
+
     pi->acceleration = force.evaluateForce(&particles, &(*pi), dt);
     pi->velocity.x += pi->acceleration.x*dt;
     pi->velocity.y += pi->acceleration.y*dt;
@@ -38,5 +59,35 @@ void SPHSolver::update(const float dt) {
 
     enforceBoundary(&(*pi));
     ++pi;
+  }
+}
+
+
+void SPHSolver::sixth(float dt) {
+  float a, b;
+  a = 1.0f / (4.0f - powf(4.0f, 1.0f/3.0f));
+  b = 1.0f - 4.0f*a;
+
+  leapFrog(a);
+  leapFrog(a);
+  leapFrog(b);
+  leapFrog(a);
+  leapFrog(a);
+}
+
+
+void SPHSolver::update(const float dt, UPDATE_FUNCTION function) {
+    switch (function) {
+      case LEAP_FROG:
+        leapFrog(dt);
+        break;
+      case SIXTH:
+        sixth(dt);
+        break;
+      default:
+      std::cerr << "Error in SPHSolver::update(const float dt, UPDATE_FUNCTION function): Invalid UPDATE_FUNCTION. "
+                           "Use LEAP_FROG or SIXTH";
+        exit(-1);
+        break;
   }
 }

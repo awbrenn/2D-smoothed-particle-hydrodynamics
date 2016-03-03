@@ -83,7 +83,7 @@ void callbackDisplay( void )
 
 // animate and display new result
 void callbackIdle() {
-  fluid->update(0.045f);
+  fluid->update(0.045f, LEAP_FROG);
 //  for (unsigned long i = 0; i < 100; ++i) {
 //    cout << fluid->particles.at(i).position.x << "   " << fluid->particles.at(i).position.y << endl;
 //  }
