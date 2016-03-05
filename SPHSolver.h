@@ -16,6 +16,7 @@ enum UPDATE_FUNCTION {LEAP_FROG, SIXTH};
 
 class SPHSolver {
   private:
+    void randomizeColor(SPHParticle *p);
     void enforceBoundary(SPHParticle *p);
     void leapFrog(float dt);
     void sixth(float dt);
@@ -24,6 +25,7 @@ class SPHSolver {
     float upper_bound;
     float lower_bound;
     float dampening;
+    bool party_mode;
     std::vector<SPHParticle> particles;
     SPHForce force;
 

@@ -33,11 +33,12 @@ void setup_the_viewvolume()
 
 void drawParticles() {
   // draw particles
-  glColor3f(1.0f, 1.0f, 0.0f);
   glPointSize(2.5f);
   glBegin(GL_POINTS);
   vector<SPHParticle>::iterator pi = fluid->particles.begin();
   while(pi != fluid->particles.end()) {
+    vector3 color = pi->color;
+    glColor3f(color.x, color.y, color.z);
     vector2 position = pi->position;
     glVertex3f(position.x, position.y, 0.0f);
     ++pi;
@@ -71,7 +72,7 @@ void draw_stuff()
 void initParticleSim() {
   srand (static_cast <unsigned> (time(0)));
 
-  fluid = new SPHSolver(100, 2.0f, 0.0f);
+  fluid = new SPHSolver(100, 0.0f, 2.0f);
 }
 
 void callbackDisplay( void )
@@ -83,7 +84,7 @@ void callbackDisplay( void )
 
 // animate and display new result
 void callbackIdle() {
-  fluid->update(0.045f, LEAP_FROG);
+  fluid->update(0.000075f, LEAP_FROG);
 //  for (unsigned long i = 0; i < 100; ++i) {
 //    cout << fluid->particles.at(i).position.x << "   " << fluid->particles.at(i).position.y << endl;
 //  }
@@ -111,6 +112,8 @@ void callbackKeyboard( unsigned char key, int x, int y )
     cout << "Exiting Program" << endl;
     exit(0);
 
+    case 'p':
+      fluid->party_mode = !fluid->party_mode;
     default:
     break;
   }
@@ -121,6 +124,7 @@ void PrintUsage()
 {
   cout << "sph_fluid_simulator keyboard choices\n";
   cout << "./,      increase/decrease % of energy retained after bounce\n";
+  cout << "p        turn on party mode. Randomizes particle color on collison\n";
   cout << "spacebar paused the simulation. pressing it again un-pauses the simulation\n";
   cout << "q        exits the program\n";
 }
