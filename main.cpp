@@ -112,8 +112,25 @@ void callbackKeyboard( unsigned char key, int x, int y )
     cout << "Exiting Program" << endl;
     exit(0);
 
+    case 'w':
+      fluid->force.gravity = {0.0f, 9.8f};
+      break;
+
+    case 'a':
+      fluid->force.gravity = {-9.8f, 0.0f};
+      break;
+
+    case 's':
+      fluid->force.gravity = {0.0f, -9.0f};
+      break;
+
+    case 'd':
+      fluid->force.gravity = {9.8f, 0.0f};
+      break;
+
     case 'p':
       fluid->party_mode = !fluid->party_mode;
+      break;
     default:
     break;
   }
@@ -125,6 +142,7 @@ void PrintUsage()
   cout << "sph_fluid_simulator keyboard choices\n";
   cout << "./,      increase/decrease % of energy retained after bounce\n";
   cout << "p        turn on party mode. Randomizes particle color on collison\n";
+  cout << "w/a/s/d  switches gravity to point up/left/down/right\n";
   cout << "spacebar paused the simulation. pressing it again un-pauses the simulation\n";
   cout << "q        exits the program\n";
 }
@@ -132,9 +150,9 @@ void PrintUsage()
 
 int main(int argc, char** argv)
 {
+  PrintUsage();
   initParticleSim();
   glutInit(&argc,argv);
-
   glutInitDisplayMode(GLUT_RGBA|GLUT_MULTISAMPLE);
   glutInitWindowSize(512,512);
   glutInitWindowPosition(100,50);
