@@ -1,15 +1,20 @@
-#include <iostream>
+//#include "CmdLineFind.h"
+
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include <OpenImageIO/imageio.h>
+
 #include "SPHSolver.h"
 
-using namespace std;
 
-SPHSolver *fluid;
+//using namespace lux;
+OIIO_NAMESPACE_USING
 
 struct point {
   float x, y, z;
 };
+
+SPHSolver *fluid;
 
 void setup_the_viewvolume()
 {
@@ -35,7 +40,7 @@ void drawParticles() {
   // draw particles
   glPointSize(2.5f);
   glBegin(GL_POINTS);
-  vector<SPHParticle>::iterator pi = fluid->particles.begin();
+  std::vector<SPHParticle>::iterator pi = fluid->particles.begin();
   while(pi != fluid->particles.end()) {
     vector3 color = pi->color;
     glColor3f(color.x, color.y, color.z);
@@ -100,16 +105,16 @@ void callbackKeyboard( unsigned char key, int x, int y )
     case ',' : case '<':
       new_dampening = fluid->dampening - 0.01f;
       fluid->dampening = new_dampening >= 0.0f ? new_dampening : 0.0f;
-      cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << endl;
+      std::cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << std::endl;
       break;
 
     case '.': case '>':
       fluid->dampening += 0.01f;
-      cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << endl;
+    std::cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << std::endl;
       break;
 
     case 'q':
-    cout << "Exiting Program" << endl;
+    std::cout << "Exiting Program" << std::endl;
     exit(0);
 
     case 'w':
@@ -139,12 +144,13 @@ void callbackKeyboard( unsigned char key, int x, int y )
 
 void PrintUsage()
 {
-  cout << "sph_fluid_simulator keyboard choices\n";
-  cout << "./,      increase/decrease % of energy retained after bounce\n";
-  cout << "p        turn on party mode. Randomizes particle color on collison\n";
-  cout << "w/a/s/d  switches gravity to point up/left/down/right\n";
-  cout << "spacebar paused the simulation. pressing it again un-pauses the simulation\n";
-  cout << "q        exits the program\n";
+  std::cout << "sph_fluid_simulator keyboard choices\n";
+  std::cout << "./,      increase/decrease % of energy retained after bounce\n";
+  std::cout << "p        turn on party mode. Randomizes particle color on collison\n";
+  std::cout << "w/a/s/d  switches gravity to point up/left/down/right\n";
+  std::cout << "spacebar paused the simulation. pressing it again un-pauses the simulation\n";
+  std::cout << "q        exits the program\n";
+  std::cout << std::endl;
 }
 
 
@@ -152,12 +158,17 @@ int main(int argc, char** argv)
 {
   PrintUsage();
   initParticleSim();
+  //std::string output_path;
+//  CmdLineFind clf(argc, argv);
+//  output_path = clf.find("-output_path", "output_images/", "Output path for writing image sequence");
+//  fluid->party_mode = clf.findFlag("-party_mode", "start on party mode (Randomizes particle color on collison)");
+
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_RGBA|GLUT_MULTISAMPLE);
   glutInitWindowSize(512,512);
   glutInitWindowPosition(100,50);
   glutCreateWindow("2D SPH Particle Simulation");
-  glClearColor(0.35,0.35,0.35,0.0);
+  glClearColor(0.0,0.0,0.0,0.0);
   glEnable(GL_MULTISAMPLE_ARB);
   setup_the_viewvolume();
   glutDisplayFunc(callbackDisplay);
