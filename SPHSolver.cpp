@@ -21,7 +21,7 @@ SPHSolver::SPHSolver(unsigned int number_of_particles, const float _lower_bound,
   dampening = 1.0f;
   party_mode = false;
   // initialize particles
-  for (int i = 0; i < number_of_particles; ++i) {
+  for (unsigned int i = 0; i < number_of_particles; ++i) {
     vector2 position;
     position.x = getRandomFloatBetweenValues(lower_bound, upper_bound);
     position.y = getRandomFloatBetweenValues(lower_bound, upper_bound);

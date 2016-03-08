@@ -1,20 +1,70 @@
-//#include "CmdLineFind.h"
-
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <OpenImageIO/imageio.h>
+#include <time.h>
 
 #include "SPHSolver.h"
 
-
-//using namespace lux;
 OIIO_NAMESPACE_USING
+
+#define MAX_TIME_STEP 0.04166667f // cap the maximum time step to 24 frames per second
 
 struct point {
   float x, y, z;
 };
 
 SPHSolver *fluid;
+unsigned int iwidth = 512;
+unsigned int iheight = 512;
+unsigned int frame_count = 0;
+struct timespec start_time;
+char *output_path;
+
+
+void handleError(const char* error_message, int kill)
+{
+  fprintf(stderr, "Error: %s\n\n", error_message);
+
+  if (kill == 1)
+    exit(-1);
+}
+
+
+void writeImage() {
+  char buffer[256];
+  if (sprintf(buffer, "%s/fluid_simulator_%04d.jpg", output_path, frame_count++) < 0) {
+    handleError((const char *) "creating filename in writeImage() failed", 0);
+    return;
+  }
+  const char *filename = buffer;
+  const unsigned int channels = 3; // RGB
+  float *write_pixels = new float[iwidth * iheight * channels];
+  float *window_pixels = new float[iwidth * iheight * channels];
+  ImageOutput *out = ImageOutput::create(filename);
+  if (!out) {
+    handleError((const char *) "creating output file in writeImage() failed", 0);
+    return;
+  }
+
+  glReadPixels(0, 0, iwidth, iheight, GL_RGB, GL_FLOAT, window_pixels);
+  long index = 0;
+  for (unsigned int j = 0; j < iheight; j++) {
+    for (unsigned int i = 0; i < iwidth; i++) {
+      for (unsigned int c = 0; c < channels; c++) {
+        write_pixels[(i + iwidth * (iheight - j - 1)) * channels + c] = window_pixels[index++]; //color[index++];
+      }
+    }
+  }
+
+  ImageSpec spec (iwidth, iheight, channels, TypeDesc::FLOAT);
+  out->open (filename, spec);
+  out->write_image (TypeDesc::FLOAT, write_pixels);
+  out->close ();
+  delete out;
+  delete write_pixels;
+  delete window_pixels;
+}
+
 
 void setup_the_viewvolume()
 {
@@ -89,10 +139,18 @@ void callbackDisplay( void )
 
 // animate and display new result
 void callbackIdle() {
-  fluid->update(0.000075f, LEAP_FROG);
-//  for (unsigned long i = 0; i < 100; ++i) {
-//    cout << fluid->particles.at(i).position.x << "   " << fluid->particles.at(i).position.y << endl;
-//  }
+  // adding dynamic timestep based off of speed of the computer
+  timespec end_time;
+  clock_gettime(CLOCK_REALTIME, &end_time);
+  float delta_time = ((float)(end_time.tv_nsec - start_time.tv_nsec))*0.000000001f;
+  start_time = end_time;
+
+  // cap delta_time wiht min and max values
+  if (delta_time < 0.0f) { delta_time = 0.0f; }
+  else if (delta_time > MAX_TIME_STEP) {delta_time = MAX_TIME_STEP; }
+
+  fluid->update(delta_time, LEAP_FROG);
+  if (output_path != NULL) { writeImage(); }
   glutPostRedisplay();
 }
 
@@ -154,21 +212,19 @@ void PrintUsage()
 }
 
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
+  output_path = new char[1024];
+  if (argc==2) { output_path = argv[1]; } else { output_path = NULL; }
+  clock_gettime(CLOCK_REALTIME, &start_time);
+
   PrintUsage();
   initParticleSim();
-  //std::string output_path;
-//  CmdLineFind clf(argc, argv);
-//  output_path = clf.find("-output_path", "output_images/", "Output path for writing image sequence");
-//  fluid->party_mode = clf.findFlag("-party_mode", "start on party mode (Randomizes particle color on collison)");
-
-  glutInit(&argc,argv);
-  glutInitDisplayMode(GLUT_RGBA|GLUT_MULTISAMPLE);
-  glutInitWindowSize(512,512);
-  glutInitWindowPosition(100,50);
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_MULTISAMPLE);
+  glutInitWindowSize(iwidth, iheight);
+  glutInitWindowPosition(100, 50);
   glutCreateWindow("2D SPH Particle Simulation");
-  glClearColor(0.0,0.0,0.0,0.0);
+  glClearColor(0.0, 0.0, 0.0, 0.0);
   glEnable(GL_MULTISAMPLE_ARB);
   setup_the_viewvolume();
   glutDisplayFunc(callbackDisplay);
