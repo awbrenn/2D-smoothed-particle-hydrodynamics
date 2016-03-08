@@ -1,6 +1,10 @@
-//
-// Created by awbrenn on 3/2/16.
-//
+/*
+ * Author:         Austin Brennan
+ * University:     Clemson University
+ * Course:         2D Fluid Simulation
+ * Professor:      Dr. Jerry Tessendorf
+ * Due Date:       3/8/2016
+ */
 
 #ifndef SPHFORCE_H
 #define SPHFORCE_H

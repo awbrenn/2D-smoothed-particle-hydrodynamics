@@ -1,10 +1,20 @@
+/*
+ * Author:         Austin Brennan
+ * University:     Clemson University
+ * Course:         2D Fluid Simulation
+ * Professor:      Dr. Jerry Tessendorf
+ * Due Date:       3/8/2016
+ */
+
+
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <OpenImageIO/imageio.h>
-#include <time.h>
-
 #include "SPHSolver.h"
+#include "CmdLineFind.h"
 
+using namespace std;
+using namespace lux;
 OIIO_NAMESPACE_USING
 
 #define MAX_TIME_STEP 0.04166667f // cap the maximum time step to 24 frames per second
@@ -17,8 +27,17 @@ SPHSolver *fluid;
 unsigned int iwidth = 512;
 unsigned int iheight = 512;
 unsigned int frame_count = 0;
-struct timespec start_time;
-char *output_path;
+timespec start_time;
+string output_path;
+bool write_to_output;
+bool simulation_paused = false;
+
+
+//----------------------------------------------------
+//
+//  Error handler
+//
+//----------------------------------------------------
 
 
 void handleError(const char* error_message, int kill)
@@ -30,9 +49,18 @@ void handleError(const char* error_message, int kill)
 }
 
 
+//----------------------------------------------------
+//
+//  Write images
+//
+//----------------------------------------------------
+
+
 void writeImage() {
   char buffer[256];
-  if (sprintf(buffer, "%s/fluid_simulator_%04d.jpg", output_path, frame_count++) < 0) {
+
+  if (output_path.back() != '/') { output_path.push_back('/'); }
+  if (sprintf(buffer, "%sfluid_simulator_%04d.jpg", output_path.c_str(), frame_count++) < 0) {
     handleError((const char *) "creating filename in writeImage() failed", 0);
     return;
   }
@@ -66,7 +94,14 @@ void writeImage() {
 }
 
 
-void setup_the_viewvolume()
+//----------------------------------------------------
+//
+//  Setting up camera for OpenGL
+//
+//----------------------------------------------------
+
+
+void setupTheViewVolume()
 {
   struct point eye, view, up;
 
@@ -86,11 +121,19 @@ void setup_the_viewvolume()
   gluLookAt(eye.x,eye.y,eye.z,view.x,view.y,view.z,up.x,up.y,up.z);
 }
 
+
+//----------------------------------------------------
+//
+//  OpenGL drawing commands
+//
+//----------------------------------------------------
+
+
 void drawParticles() {
   // draw particles
   glPointSize(2.5f);
   glBegin(GL_POINTS);
-  std::vector<SPHParticle>::iterator pi = fluid->particles.begin();
+  vector<SPHParticle>::iterator pi = fluid->particles.begin();
   while(pi != fluid->particles.end()) {
     vector3 color = pi->color;
     glColor3f(color.x, color.y, color.z);
@@ -102,7 +145,8 @@ void drawParticles() {
   glFlush();
 }
 
-void draw_stuff()
+
+void drawScene()
 {
   struct point front[4] = {
       {0.0f,0.0f,0.0f}, {0.0f,2.0f,0.0f}, {2.0f,2.0f,0.0f}, {2.0f,0.0f,0.0f} };
@@ -124,18 +168,36 @@ void draw_stuff()
 }
 
 
-void initParticleSim() {
+//----------------------------------------------------
+//
+//  Initialize Particles
+//
+//----------------------------------------------------
+
+
+void initParticleSim(UPDATE_FUNCTION update_function, bool party_mode) {
   srand (static_cast <unsigned> (time(0)));
 
   fluid = new SPHSolver(100, 0.0f, 2.0f);
+  fluid->update_function = update_function;
+  fluid->party_mode = party_mode;
 }
+
+
+//----------------------------------------------------
+//
+//  OpenGL Callbacks
+//
+//----------------------------------------------------
+
 
 void callbackDisplay( void )
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  draw_stuff();
+  drawScene();
   glutSwapBuffers();
 }
+
 
 // animate and display new result
 void callbackIdle() {
@@ -149,8 +211,8 @@ void callbackIdle() {
   if (delta_time < 0.0f) { delta_time = 0.0f; }
   else if (delta_time > MAX_TIME_STEP) {delta_time = MAX_TIME_STEP; }
 
-  fluid->update(delta_time, LEAP_FROG);
-  if (output_path != NULL) { writeImage(); }
+  if (!simulation_paused) { fluid->update(delta_time); }
+  if (write_to_output) { writeImage(); }
   glutPostRedisplay();
 }
 
@@ -163,62 +225,119 @@ void callbackKeyboard( unsigned char key, int x, int y )
     case ',' : case '<':
       new_dampening = fluid->dampening - 0.01f;
       fluid->dampening = new_dampening >= 0.0f ? new_dampening : 0.0f;
-      std::cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << std::endl;
+      cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << endl;
       break;
 
     case '.': case '>':
       fluid->dampening += 0.01f;
-    std::cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << std::endl;
+    cout << "Setting dampening. Bounce energy is " << fluid->dampening * 100 << "% of original energy" << endl;
       break;
 
     case 'q':
-    std::cout << "Exiting Program" << std::endl;
+    cout << "Exiting Program" << endl;
     exit(0);
 
     case 'w':
       fluid->force.gravity = {0.0f, 9.8f};
+      cout << "Gravity is now up" << endl;
       break;
 
     case 'a':
       fluid->force.gravity = {-9.8f, 0.0f};
+      cout << "Gravity is now left" << endl;
       break;
 
     case 's':
-      fluid->force.gravity = {0.0f, -9.0f};
+      fluid->force.gravity = {0.0f, -9.8f};
+      cout << "Gravity is now down" << endl;
       break;
 
     case 'd':
       fluid->force.gravity = {9.8f, 0.0f};
+      cout << "Gravity is now right" << endl;
       break;
 
     case 'p':
       fluid->party_mode = !fluid->party_mode;
+      cout << (fluid->party_mode ? "Party mode is on" : "Party mode is off") << endl;
       break;
+
+    case ' ':
+      simulation_paused = !simulation_paused;
+      cout << (simulation_paused ? "Simulation paused" : "Simulation un-paused") << endl;
+      break;
+
+    case 'o':
+      write_to_output = !write_to_output;
+      cout << (write_to_output ? "Starting writing to output" : "Ending writing to output") << endl;
+      break;
+
     default:
     break;
   }
 }
 
 
+//----------------------------------------------------
+//
+//  Program usage
+//
+//----------------------------------------------------
+
+
 void PrintUsage()
 {
-  std::cout << "sph_fluid_simulator keyboard choices\n";
-  std::cout << "./,      increase/decrease % of energy retained after bounce\n";
-  std::cout << "p        turn on party mode. Randomizes particle color on collison\n";
-  std::cout << "w/a/s/d  switches gravity to point up/left/down/right\n";
-  std::cout << "spacebar paused the simulation. pressing it again un-pauses the simulation\n";
-  std::cout << "q        exits the program\n";
-  std::cout << std::endl;
+  cout << "sph_fluid_simulator keyboard choices\n";
+  cout << "./,      increase/decrease % of energy retained after bounce\n";
+  cout << "p        turn on party mode. Randomizes particle color on collison\n";
+  cout << "w/a/s/d  switches gravity to point up/left/down/right\n";
+  cout << "spacebar paused the simulation. pressing it again un-pauses the simulation\n";
+  cout << "o        toggle writing to output_path\n";
+  cout << "q        exits the program\n";
+  cout << endl;
 }
 
 
+//----------------------------------------------------
+//
+//  Main
+//
+//----------------------------------------------------
+
+
 int main(int argc, char** argv) {
-  output_path = new char[1024];
-  if (argc==2) { output_path = argv[1]; } else { output_path = NULL; }
+  CmdLineFind clf(argc, argv);
+  output_path = clf.find("-output_path", "./output_images", "Output path for writing image sequence");
+  int write_on_start = clf.find("-write_on_start", 0, "Flag for whether to start writing output images at the start of "
+                                "the program or not");
+  int party_mode = clf.find("-party_mode", 0, "Flag for starting in party mode or not");
+  string update_function_str = clf.find("-update_function", "S", "Function in update (options 'LF' for leap frog or 'S'"
+                                        " for sixth)");
+
+  // validate flags
+  if (party_mode != 0 && party_mode != 1) { handleError("Invalid usage of party mode flag", true); }
+  if (write_on_start != 0 && write_on_start != 1) { handleError("Invalid usage of write on start flag", true); }
+  if (update_function_str.compare("S") != 0 && update_function_str.compare("S") != 0)
+    { handleError("Invalid usage of update_function flag", true); }
+
+  // print key control usage
+  PrintUsage();
+  clf.usage("-h");
+  clf.printFinds();
+
+  // initialize particle simulation
+  UPDATE_FUNCTION update_function;
+  if (update_function_str.compare("S") == 0) { update_function = SIXTH; }
+  else {update_function = LEAP_FROG; }
+  initParticleSim(update_function, party_mode != 0);
+
+  // decide whether to write to output or not
+  write_to_output = write_on_start != 0;
+
+  // get starting clock time for dynamic timestep in callbackIdle func
   clock_gettime(CLOCK_REALTIME, &start_time);
 
-  PrintUsage();
-  initParticleSim();
+  // initialize glut window
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_MULTISAMPLE);
   glutInitWindowSize(iwidth, iheight);
@@ -226,7 +345,7 @@ int main(int argc, char** argv) {
   glutCreateWindow("2D SPH Particle Simulation");
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glEnable(GL_MULTISAMPLE_ARB);
-  setup_the_viewvolume();
+  setupTheViewVolume();
   glutDisplayFunc(callbackDisplay);
   glutKeyboardFunc(&callbackKeyboard);
   glutIdleFunc(&callbackIdle);

@@ -1,6 +1,10 @@
-//
-// Created by awbrenn on 3/2/16.
-//
+/*
+ * Author:         Austin Brennan
+ * University:     Clemson University
+ * Course:         2D Fluid Simulation
+ * Professor:      Dr. Jerry Tessendorf
+ * Due Date:       3/8/2016
+ */
 
 #ifndef SPHSOLVER_H
 #define SPHSOLVER_H
@@ -9,7 +13,7 @@
 #include "SPHForce.h"
 #include "math.h"
 #include <vector>
-#include <cstdlib>
+#include <stdlib.h>
 #include <iostream>
 
 enum UPDATE_FUNCTION {LEAP_FROG, SIXTH};
@@ -22,6 +26,7 @@ class SPHSolver {
     void sixth(float dt);
 
   public:
+    UPDATE_FUNCTION update_function;
     float upper_bound;
     float lower_bound;
     float dampening;
@@ -30,7 +35,7 @@ class SPHSolver {
     SPHForce force;
 
     SPHSolver(unsigned int number_of_particles, const float upper_bound, const float lower_bound);
-    void update(const float dt, UPDATE_FUNCTION function);
+    void update(const float dt);
 };
 
 #endif //SPHSOLVER_H

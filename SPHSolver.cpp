@@ -1,6 +1,10 @@
-//
-// Created by awbrenn on 3/2/16.
-//
+/*
+ * Author:         Austin Brennan
+ * University:     Clemson University
+ * Course:         2D Fluid Simulation
+ * Professor:      Dr. Jerry Tessendorf
+ * Due Date:       3/8/2016
+ */
 
 #include "SPHSolver.h"
 
@@ -19,6 +23,7 @@ SPHSolver::SPHSolver(unsigned int number_of_particles, const float _lower_bound,
   lower_bound = _lower_bound;
   upper_bound = _upper_bound;
   dampening = 1.0f;
+  update_function = SIXTH;
   party_mode = false;
   // initialize particles
   for (unsigned int i = 0; i < number_of_particles; ++i) {
@@ -94,16 +99,16 @@ void SPHSolver::sixth(float dt) {
   a = 1.0f / (4.0f - powf(4.0f, 1.0f/3.0f));
   b = 1.0f - 4.0f*a;
 
-  leapFrog(a);
-  leapFrog(a);
-  leapFrog(b);
-  leapFrog(a);
-  leapFrog(a);
+  leapFrog(a*dt);
+  leapFrog(a*dt);
+  leapFrog(b*dt);
+  leapFrog(a*dt);
+  leapFrog(a*dt);
 }
 
 
-void SPHSolver::update(const float dt, UPDATE_FUNCTION function) {
-  switch (function) {
+void SPHSolver::update(const float dt) {
+  switch (update_function) {
     case LEAP_FROG:
       leapFrog(dt);
       break;
