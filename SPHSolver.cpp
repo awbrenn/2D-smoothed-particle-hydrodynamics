@@ -19,7 +19,7 @@ float getRandomFloatBetweenValues (float lower_bound, float upper_bound) {
 }
 
 
-SPHSolver::SPHSolver(unsigned int number_of_particles, const float _lower_bound, const float _upper_bound) {
+SPHSolver::SPHSolver(unsigned int number_of_particles, const float _lower_bound, const float _upper_bound, const float h) {
   lower_bound = _lower_bound;
   upper_bound = _upper_bound;
   dampening = 1.0f;
@@ -31,7 +31,7 @@ SPHSolver::SPHSolver(unsigned int number_of_particles, const float _lower_bound,
     position.x = getRandomFloatBetweenValues(lower_bound, upper_bound);
     position.y = getRandomFloatBetweenValues(lower_bound, upper_bound);
     vector2 velocity = {0.0f, 0.0f};
-    particles.push_back(SPHParticle(position, velocity));
+    particles.push_back(SPHParticle(position, velocity, h));
   }
 }
 
@@ -74,9 +74,30 @@ void SPHSolver::enforceBoundary(SPHParticle *p) {
 }
 
 
+float SPHSolver::getInfluence(vector2 xb, vector2 xa) {
+  return 0.0; // stubbed
+}
+
+
+void SPHSolver::calculateDensity (SPHParticle *b) {
+  std::vector<SPHParticle>::iterator a = particles.begin();
+
+  while(a != particles.end()) {
+    b->density += a->mass * getInfluence(b->position, a->position);
+    ++a;
+  }
+}
+
+
 void SPHSolver::leapFrog(float dt) {
   dt /= 2.0f;
   std::vector<SPHParticle>::iterator pi = particles.begin();
+  while(pi != particles.end()) {
+    calculateDensity(&(*pi));
+    ++pi;
+  }
+
+  pi = particles.begin();
   while(pi != particles.end()) {
     pi->position.x += pi->velocity.x*dt;
     pi->position.y += pi->velocity.y*dt;

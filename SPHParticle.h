@@ -23,8 +23,11 @@ class SPHParticle {
     vector2 velocity;
     vector2 acceleration;
     vector3 color;
+    float radius;
+    float mass;
+    float density;
 
-    SPHParticle(const vector2 _position, const vector2 _velocity);
+    SPHParticle(const vector2 _position, const vector2 _velocity, const float radius);
 };
 
 

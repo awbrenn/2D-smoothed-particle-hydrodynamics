@@ -22,6 +22,8 @@ class SPHSolver {
   private:
     void randomizeColor(SPHParticle *p);
     void enforceBoundary(SPHParticle *p);
+    void calculateDensity (SPHParticle *b);
+    float getInfluence(vector2 xb, vector2 xa);
     void leapFrog(float dt);
     void sixth(float dt);
 
@@ -34,7 +36,7 @@ class SPHSolver {
     std::vector<SPHParticle> particles;
     SPHForce force;
 
-    SPHSolver(unsigned int number_of_particles, const float upper_bound, const float lower_bound);
+    SPHSolver(unsigned int number_of_particles, const float upper_bound, const float lower_bound, const float h);
     void update(const float dt);
 };
 
