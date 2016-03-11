@@ -23,7 +23,7 @@ class SPHSolver {
     void randomizeColor(SPHParticle *p);
     void enforceBoundary(SPHParticle *p);
     void calculateDensity (SPHParticle *b);
-    float getInfluence(vector2 xb, vector2 xa);
+    float getInfluence(vector2 xb, vector2 xa, float h);
     void leapFrog(float dt);
     void sixth(float dt);
 

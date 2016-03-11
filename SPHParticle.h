@@ -8,10 +8,7 @@
 
 #ifndef SPHPARTICLE_H
 #define SPHPARTICLE_H
-
-typedef struct vector2 {
-  float x, y;
-} vector2;
+#include "vector2.h"
 
 typedef struct vector3 {
   float x, y, z;

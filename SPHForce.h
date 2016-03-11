@@ -13,9 +13,8 @@
 
 class SPHForce {
   public:
-    vector2 gravity = {0.0f, -9.8f};
+    vector2 gravity = vector2(0.0f, -9.0f);
     vector2 evaluateForce(const std::vector<SPHParticle> *particles, const SPHParticle *a, const float dt);
 };
-
 
 #endif //SPHFORCE_H

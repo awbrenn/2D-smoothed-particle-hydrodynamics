@@ -74,8 +74,15 @@ void SPHSolver::enforceBoundary(SPHParticle *p) {
 }
 
 
-float SPHSolver::getInfluence(vector2 xb, vector2 xa) {
-  return 0.0; // stubbed
+float SPHSolver::getInfluence(vector2 xb, vector2 xa, float h) {
+  float q, result;
+
+  q = (xa-xb).length();
+
+  if (q > 1.0f) { result = 0.0f; }
+  else { result = (float)(10.0f / (M_PI * (h * h)) * ((1.0f - q) * (1.0f - q) * (1.0f - q)));}
+
+  return result;
 }
 
 
@@ -83,7 +90,7 @@ void SPHSolver::calculateDensity (SPHParticle *b) {
   std::vector<SPHParticle>::iterator a = particles.begin();
 
   while(a != particles.end()) {
-    b->density += a->mass * getInfluence(b->position, a->position);
+    b->density += a->mass * getInfluence(b->position, a->position, a->radius);
     ++a;
   }
 }
