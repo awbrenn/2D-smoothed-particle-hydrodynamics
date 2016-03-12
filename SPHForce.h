@@ -9,12 +9,21 @@
 #ifndef SPHFORCE_H
 #define SPHFORCE_H
 #include "SPHParticle.h"
+#include <math.h>
 #include <vector>
 
 class SPHForce {
+  private:
+    float getPressure(SPHParticle *p);
+
   public:
-    vector2 gravity = vector2(0.0f, -9.0f);
-    vector2 evaluateForce(const std::vector<SPHParticle> *particles, const SPHParticle *a, const float dt);
+    vector2 gravity = vector2(0.0f, -9.8f);
+    float density_base = 0.5f;
+    float gamma = 0.1f;
+    float beta = 2.0;
+
+
+    vector2 evaluateForce(std::vector<SPHParticle> *particles, SPHParticle *b);
 };
 
 #endif //SPHFORCE_H

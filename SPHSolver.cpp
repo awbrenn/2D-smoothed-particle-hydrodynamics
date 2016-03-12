@@ -28,8 +28,8 @@ SPHSolver::SPHSolver(unsigned int number_of_particles, const float _lower_bound,
   // initialize particles
   for (unsigned int i = 0; i < number_of_particles; ++i) {
     vector2 position;
-    position.x = getRandomFloatBetweenValues(lower_bound, upper_bound);
-    position.y = getRandomFloatBetweenValues(lower_bound, upper_bound);
+    position.x = getRandomFloatBetweenValues(lower_bound, upper_bound-1.0f);
+    position.y = getRandomFloatBetweenValues(lower_bound+1.0f, upper_bound);
     vector2 velocity = {0.0f, 0.0f};
     particles.push_back(SPHParticle(position, velocity, h));
   }
@@ -77,10 +77,10 @@ void SPHSolver::enforceBoundary(SPHParticle *p) {
 float SPHSolver::getInfluence(vector2 xb, vector2 xa, float h) {
   float q, result;
 
-  q = (xa-xb).length();
+  q = ((xa-xb).length())/h;
 
   if (q > 1.0f) { result = 0.0f; }
-  else { result = (float)(10.0f / (M_PI * (h * h)) * ((1.0f - q) * (1.0f - q) * (1.0f - q)));}
+  else { result = (float)((10.0f / (M_PI * (h * h))) * ((1.0f - q) * (1.0f - q) * (1.0f - q)));}
 
   return result;
 }
@@ -89,6 +89,7 @@ float SPHSolver::getInfluence(vector2 xb, vector2 xa, float h) {
 void SPHSolver::calculateDensity (SPHParticle *b) {
   std::vector<SPHParticle>::iterator a = particles.begin();
 
+  b->density = 0.0f;
   while(a != particles.end()) {
     b->density += a->mass * getInfluence(b->position, a->position, a->radius);
     ++a;
@@ -99,6 +100,15 @@ void SPHSolver::calculateDensity (SPHParticle *b) {
 void SPHSolver::leapFrog(float dt) {
   dt /= 2.0f;
   std::vector<SPHParticle>::iterator pi = particles.begin();
+
+  while(pi != particles.end()) {
+    pi->position.x += pi->velocity.x * dt;
+    pi->position.y += pi->velocity.y * dt;
+    enforceBoundary(&(*pi));
+    ++pi;
+  }
+
+  pi = particles.begin();
   while(pi != particles.end()) {
     calculateDensity(&(*pi));
     ++pi;
@@ -106,11 +116,7 @@ void SPHSolver::leapFrog(float dt) {
 
   pi = particles.begin();
   while(pi != particles.end()) {
-    pi->position.x += pi->velocity.x*dt;
-    pi->position.y += pi->velocity.y*dt;
-    enforceBoundary(&(*pi));
-
-    pi->acceleration = force.evaluateForce(&particles, &(*pi), dt);
+    pi->acceleration = force.evaluateForce(&particles, &(*pi));
     pi->velocity.x += pi->acceleration.x*dt;
     pi->velocity.y += pi->acceleration.y*dt;
     pi->position.x += pi->velocity.x*dt;

@@ -18,6 +18,7 @@ public:
     vector2 operator-(const vector2& rhs) const;
     vector2 operator*(const vector2& rhs) const;
     vector2 operator/(const vector2& rhs) const;
+//    vector2 operator/(const float &constant);
 
     const vector2& operator+=(const vector2& rhs);
     const vector2& operator-=(const vector2& rhs);
@@ -25,7 +26,7 @@ public:
     const vector2& operator/=(const vector2& rhs);
 
     float length() const;
-    void scale(const float factor);
+    vector2 scale(const float factor);
     vector2 unit() const;
 };
 

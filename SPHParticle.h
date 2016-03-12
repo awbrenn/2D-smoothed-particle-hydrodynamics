@@ -23,6 +23,7 @@ class SPHParticle {
     float radius;
     float mass;
     float density;
+    float pressure;
 
     SPHParticle(const vector2 _position, const vector2 _velocity, const float radius);
 };

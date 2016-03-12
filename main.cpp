@@ -178,7 +178,7 @@ void drawScene()
 void initParticleSim(UPDATE_FUNCTION update_function, bool party_mode, const float h) {
   srand (static_cast <unsigned> (time(0)));
 
-  fluid = new SPHSolver(100, 0.0f, 2.0f, h);
+  fluid = new SPHSolver(200, 0.0f, 2.0f, h);
   fluid->update_function = update_function;
   fluid->party_mode = party_mode;
 }
@@ -330,7 +330,7 @@ int main(int argc, char** argv) {
   if (update_function_str.compare("S") == 0) { update_function = SIXTH; }
   else {update_function = LEAP_FROG; }
 
-  float h = 0.001;
+  float h = 0.005;
 
   initParticleSim(update_function, party_mode != 0, h);
 
