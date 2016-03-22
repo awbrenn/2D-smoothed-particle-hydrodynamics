@@ -4,7 +4,7 @@
 
 #include "SPHForce.h"
 
-vector2 getGradW(SPHParticle *b, SPHParticle *a, float h) {
+vector2 calculateGradW(SPHParticle *b, SPHParticle *a, float h) {
   float q, one_minus_q, magnitude;
   vector2 result;
 
@@ -21,25 +21,40 @@ vector2 getGradW(SPHParticle *b, SPHParticle *a, float h) {
   return result;
 }
 
-float SPHForce::getPressure(SPHParticle *p) {
+float SPHForce::calculatePressure(SPHParticle *p) {
   float result;
   result = beta*powf((p->density/density_base), gamma);
   return result;
 }
 
+float SPHForce::calculateViscocityForce(SPHParticle *b, SPHParticle *a, float h) {
+  float viscosity_force;
+
+  vector2 x_ba = (b->position - a->position);
+  float x_ba_magnitude = x_ba.length();
+
+  viscosity_force = -1.0f * viscosity * (b->velocity - a->velocity).scale(h).dot(x_ba) /
+                                        ((x_ba_magnitude*x_ba_magnitude) + (epsilon * h * h)) *
+                                        (1.0f / (b->density + a->density));
+
+  return viscosity_force;
+}
+
 vector2 SPHForce::evaluateForce(std::vector<SPHParticle> *particles, SPHParticle *b) {
   vector2 force;
   vector2 grad_w;
-  float pressure_a, pressure_b;
+  float pressure_a, pressure_b, viscosity_force;
 
   force = vector2(0.0f, 0.0f);
   std::vector<SPHParticle>::iterator pi = particles->begin();
   while(pi != particles->end()) {
-    pressure_a = getPressure(&(*pi));
-    pressure_b = getPressure(b);
-    grad_w = getGradW(b, &(*pi), b->radius);
+    pressure_a = calculatePressure(&(*pi));
+    pressure_b = calculatePressure(b);
+    grad_w = calculateGradW(b, &(*pi), b->radius);
+    viscosity_force = calculateViscocityForce(b, &(*pi), b->radius);
     force += grad_w.scale((pi->mass) * ((pressure_a / (pi->density * pi->density)) +
-                                        (pressure_b / ( b->density *  b->density))));
+                                        (pressure_b / ( b->density *  b->density)) +
+                                         viscosity_force));
     ++pi;
   }
   force = force.scale(-1.0f/b->mass);

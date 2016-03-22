@@ -13,7 +13,6 @@ vector2::vector2(float x, float y) {
 vector2::vector2(const vector2 &src) {
   this->x = src.x;
   this->y = src.y;
-
 }
 
 const vector2 &vector2::operator=(const vector2 &rhs) {
@@ -76,10 +75,15 @@ float vector2::length() const {
 }
 
 vector2 vector2::scale(const float factor) {
-  this->x *= factor;
-  this->y *= factor;
+  vector2 result;
+  result.x = this->x * factor;
+  result.y = this->y * factor;
 
-  return *this;
+  return result;
+}
+
+float vector2::dot(const vector2 &rhs) {
+  return ((this->x * rhs.x) + (this->y * rhs.y));
 }
 
 vector2 vector2::unit() const {

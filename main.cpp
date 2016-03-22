@@ -330,7 +330,7 @@ int main(int argc, char** argv) {
   if (update_function_str.compare("S") == 0) { update_function = SIXTH; }
   else {update_function = LEAP_FROG; }
 
-  float h = 0.1;
+  float h = 0.15;
 
   initParticleSim(update_function, party_mode != 0, h);
 

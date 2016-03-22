@@ -14,14 +14,16 @@
 
 class SPHForce {
   private:
-    float getPressure(SPHParticle *p);
+    float calculatePressure(SPHParticle *p);
+    float calculateViscocityForce(SPHParticle *b, SPHParticle *a, float h);
 
   public:
     vector2 gravity = vector2(0.0f, -9.8f);
-    float density_base = 318.310f;
+    float density_base = 141.471060526f;
     float gamma = 3.0f;
-    float beta = 1.0;
-
+    float beta = 2.0;
+    float viscosity = 1.0f;
+    float epsilon = 0.1f;
 
     vector2 evaluateForce(std::vector<SPHParticle> *particles, SPHParticle *b);
 };

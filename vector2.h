@@ -26,6 +26,7 @@ public:
     const vector2& operator/=(const vector2& rhs);
 
     float length() const;
+    float dot(const vector2 &rhs);
     vector2 scale(const float factor);
     vector2 unit() const;
 };
