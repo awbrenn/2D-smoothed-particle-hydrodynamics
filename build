@@ -1,1 +1,1 @@
-g++ -std=c++11 -Wall -g -O2 main.cpp SPHParticle.cpp SPHParticle.h SPHForce.cpp SPHForce.h SPHSolver.cpp SPHSolver.h -lm -lGLU -lGL -lglut -I /group/dpa/include -L/group/dpa/lib -lOpenImageIO -o sph_fluid_simulator
+g++ -std=c++11 -Wall -g -O2 main.cpp SPHParticle.cpp SPHParticle.h SPHForce.cpp SPHForce.h SPHSolver.cpp SPHSolver.h vector2.cpp vector2.h -lm -lGLU -lGL -lglut -I /group/dpa/include -L/group/dpa/lib -lOpenImageIO -o sph_fluid_simulator

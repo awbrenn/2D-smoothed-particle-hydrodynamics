@@ -10,7 +10,7 @@ vector2 getGradW(SPHParticle *b, SPHParticle *a, float h) {
 
   magnitude = ((b->position - a->position).length());
   q = magnitude / b->radius;
-  if (q >= 1.0f or q == 0.0f) { result = vector2(0.0f, 0.0f); }
+  if (q >= 1.0f or q == 0.0) { result = vector2(0.0f, 0.0f); }
   else {
     one_minus_q = 1.0f - q;
 

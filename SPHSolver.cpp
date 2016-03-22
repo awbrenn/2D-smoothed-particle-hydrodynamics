@@ -28,8 +28,8 @@ SPHSolver::SPHSolver(unsigned int number_of_particles, const float _lower_bound,
   // initialize particles
   for (unsigned int i = 0; i < number_of_particles; ++i) {
     vector2 position;
-    position.x = getRandomFloatBetweenValues(lower_bound, upper_bound-1.0f);
-    position.y = getRandomFloatBetweenValues(lower_bound+1.0f, upper_bound);
+    position.x = getRandomFloatBetweenValues(lower_bound, upper_bound-1.5f);
+    position.y = getRandomFloatBetweenValues(lower_bound+1.0f, upper_bound-0.5f);
     vector2 velocity = {0.0f, 0.0f};
     particles.push_back(SPHParticle(position, velocity, h));
   }
@@ -79,7 +79,7 @@ float SPHSolver::getInfluence(vector2 xb, vector2 xa, float h) {
 
   q = ((xa-xb).length())/h;
 
-  if (q > 1.0f) { result = 0.0f; }
+  if (q >= 1.0f) { result = 0.0f; }
   else { result = (float)((10.0f / (M_PI * (h * h))) * ((1.0f - q) * (1.0f - q) * (1.0f - q)));}
 
   return result;

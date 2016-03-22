@@ -18,9 +18,9 @@ class SPHForce {
 
   public:
     vector2 gravity = vector2(0.0f, -9.8f);
-    float density_base = 0.5f;
-    float gamma = 0.1f;
-    float beta = 2.0;
+    float density_base = 318.310f;
+    float gamma = 3.0f;
+    float beta = 1.0;
 
 
     vector2 evaluateForce(std::vector<SPHParticle> *particles, SPHParticle *b);
