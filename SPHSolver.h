@@ -31,6 +31,8 @@ class SPHSolver {
     UPDATE_FUNCTION update_function;
     float upper_bound;
     float lower_bound;
+    float highest_velocity;
+    float highest_density;
     float dampening;
     bool party_mode;
     std::vector<SPHParticle> particles;

@@ -132,11 +132,12 @@ void SPHSolver::leapFrog(float dt) {
     pi->position.x += pi->velocity.x * dt;
     pi->position.y += pi->velocity.y * dt;
     enforceBoundary(&(*pi));
-    ++pi;
+
     if (ovllc.x > pi->position.x) { ovllc.x = pi->position.x; }
     if (ovllc.y > pi->position.y) { ovllc.y = pi->position.y; }
     if (ovurc.x < pi->position.x) { ovurc.x = pi->position.x; }
     if (ovurc.y < pi->position.y) { ovurc.y = pi->position.y; }
+    ++pi;
   }
 
   // create and populate the occupancy volume
