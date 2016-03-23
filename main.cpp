@@ -178,7 +178,7 @@ void drawScene()
 void initParticleSim(UPDATE_FUNCTION update_function, bool party_mode, const float h) {
   srand (static_cast <unsigned> (time(0)));
 
-  fluid = new SPHSolver(300, 0.0f, 2.0f, h);
+  fluid = new SPHSolver(200, 0.0f, 2.0f, h);
   fluid->update_function = update_function;
   fluid->party_mode = party_mode;
 }

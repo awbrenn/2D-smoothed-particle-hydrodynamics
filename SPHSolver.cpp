@@ -96,8 +96,11 @@ void SPHSolver::calculateDensity (SPHParticle *b) {
   }
 }
 
-
 void SPHSolver::leapFrog(float dt) {
+  // occupancy volume lower left corner and upper right corner
+  vector2 ovllc = vector2(upper_bound, upper_bound);
+  vector2 ovurc = vector2(lower_bound, lower_bound);
+
   dt /= 2.0f;
   std::vector<SPHParticle>::iterator pi = particles.begin();
 
@@ -106,10 +109,17 @@ void SPHSolver::leapFrog(float dt) {
     pi->position.y += pi->velocity.y * dt;
     enforceBoundary(&(*pi));
     ++pi;
+    if (ovllc.x > pi->position.x) { ovllc.x = pi->position.x; }
+    if (ovllc.y > pi->position.y) { ovllc.y = pi->position.y; }
+    if (ovurc.x < pi->position.x) { ovurc.x = pi->position.x; }
+    if (ovurc.y < pi->position.y) { ovurc.y = pi->position.y; }
   }
 
+//  createOccupancyVolume();
+  occupancy_volume = new SPHOccupancyVolume();
   pi = particles.begin();
   while(pi != particles.end()) {
+
     calculateDensity(&(*pi));
     ++pi;
   }

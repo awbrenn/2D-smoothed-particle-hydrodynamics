@@ -11,9 +11,8 @@
 
 #include "SPHParticle.h"
 #include "SPHForce.h"
+#include "SPHOccupancyVolume.h"
 #include "math.h"
-#include <vector>
-#include <stdlib.h>
 #include <iostream>
 
 enum UPDATE_FUNCTION {LEAP_FROG, SIXTH};
@@ -34,7 +33,9 @@ class SPHSolver {
     float dampening;
     bool party_mode;
     std::vector<SPHParticle> particles;
+    SPHOccupancyVolume *occupancy_volume;
     SPHForce force;
+
 
     SPHSolver(unsigned int number_of_particles, const float upper_bound, const float lower_bound, const float h);
     void update(const float dt);
