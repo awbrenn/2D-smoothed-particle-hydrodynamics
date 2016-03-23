@@ -40,22 +40,24 @@ float SPHForce::calculateViscocityForce(SPHParticle *b, SPHParticle *a, float h)
   return viscosity_force;
 }
 
-vector2 SPHForce::evaluateForce(std::vector<SPHParticle> *particles, SPHParticle *b) {
+vector2 SPHForce::evaluateForce(std::vector<SPHParticle> *particles, SPHParticle *b, SPHOccupancyVolume *occupancy_volume) {
   vector2 force;
   vector2 grad_w;
   float pressure_a, pressure_b, viscosity_force;
+  SPHParticle *a;
+
+  std::vector<size_t> *cell = occupancy_volume->getCell(b);
 
   force = vector2(0.0f, 0.0f);
-  std::vector<SPHParticle>::iterator pi = particles->begin();
-  while(pi != particles->end()) {
-    pressure_a = calculatePressure(&(*pi));
+  for (unsigned int i = 0; i < cell->size(); ++i) {
+    a = &particles->at(cell->at(i));
+    pressure_a = calculatePressure(&(*a));
     pressure_b = calculatePressure(b);
-    grad_w = calculateGradW(b, &(*pi), b->radius);
-    viscosity_force = calculateViscocityForce(b, &(*pi), b->radius);
-    force += grad_w.scale((pi->mass) * ((pressure_a / (pi->density * pi->density)) +
+    grad_w = calculateGradW(b, &(*a), b->radius);
+    viscosity_force = calculateViscocityForce(b, &(*a), b->radius);
+    force += grad_w.scale((a->mass) * ((pressure_a / (a->density * a->density)) +
                                         (pressure_b / ( b->density *  b->density)) +
                                          viscosity_force));
-    ++pi;
   }
   force = force.scale(-1.0f/b->mass);
 

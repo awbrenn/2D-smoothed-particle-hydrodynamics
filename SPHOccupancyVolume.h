@@ -8,15 +8,22 @@
 #include <vector>
 #include <stdlib.h>
 #include "vector2.h"
+#include "SPHParticle.h"
 
 class SPHOccupancyVolume {
-    vector2 ovllc;
-    vector2 ovurc;
-    float ovnx;
-    float ovny;
-    float ovdx;
-    float ovdy;
-    std::vector<std::vector<size_t>> occupancy_volume;
+    public:
+        vector2 ovllc;
+        vector2 ovurc;
+        int nx;
+        int ny;
+        float dx;
+        float dy;
+        std::vector<std::vector<size_t>> cells;
+
+        // functions
+        std::vector<size_t> *getCell(SPHParticle *p);
+        void populateOccupancyVolume(std::vector<SPHParticle> *particles);
+
 };
 
 #endif //SPH_PARTICLE_SPHOCCUPANCYVOLUME_H

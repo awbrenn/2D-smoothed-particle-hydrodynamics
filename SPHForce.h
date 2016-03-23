@@ -9,6 +9,7 @@
 #ifndef SPHFORCE_H
 #define SPHFORCE_H
 #include "SPHParticle.h"
+#include "SPHOccupancyVolume.h"
 #include <math.h>
 #include <vector>
 
@@ -25,7 +26,7 @@ class SPHForce {
     float viscosity = 1.0f;
     float epsilon = 0.1f;
 
-    vector2 evaluateForce(std::vector<SPHParticle> *particles, SPHParticle *b);
+    vector2 evaluateForce(std::vector<SPHParticle> *particles, SPHParticle *b, SPHOccupancyVolume *occupancy_volume);
 };
 
 #endif //SPHFORCE_H

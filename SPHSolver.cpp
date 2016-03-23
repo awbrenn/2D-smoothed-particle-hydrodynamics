@@ -25,6 +25,7 @@ SPHSolver::SPHSolver(unsigned int number_of_particles, const float _lower_bound,
   dampening = 1.0f;
   update_function = SIXTH;
   party_mode = false;
+  occupancy_volume = new SPHOccupancyVolume();
   // initialize particles
   for (unsigned int i = 0; i < number_of_particles; ++i) {
     vector2 position;
@@ -87,14 +88,36 @@ float SPHSolver::getInfluence(vector2 xb, vector2 xa, float h) {
 
 
 void SPHSolver::calculateDensity (SPHParticle *b) {
-  std::vector<SPHParticle>::iterator a = particles.begin();
+  SPHParticle *a;
+  std::vector<size_t> *cell = occupancy_volume->getCell(b);
 
   b->density = 0.0f;
-  while(a != particles.end()) {
+  for (unsigned int i = 0; i < cell->size(); ++i) {
+    a = &particles[cell->at(i)];
     b->density += a->mass * getInfluence(b->position, a->position, a->radius);
-    ++a;
   }
 }
+
+
+void SPHSolver::createOccupancyVolume(vector2 ovllc, vector2 ovurc, float h) {
+  unsigned int ovnx, ovny;
+  float ovdx, ovdy;
+
+  ovnx = (unsigned int)(((ovurc.x - ovllc.x) / h) + 1);
+  ovny = (unsigned int)(((ovurc.y - ovllc.y) / h) + 1);
+
+  ovdx = (ovurc.x - ovllc.x) / ((float)(ovnx - 1));
+  ovdy = (ovurc.y - ovllc.y) / ((float)(ovny - 1));
+
+  occupancy_volume->nx = ovnx;
+  occupancy_volume->ny = ovny;
+  occupancy_volume->dx = ovdx;
+  occupancy_volume->dy = ovdy;
+
+  occupancy_volume->cells.clear();
+  occupancy_volume->cells.resize(ovnx*ovny);
+}
+
 
 void SPHSolver::leapFrog(float dt) {
   // occupancy volume lower left corner and upper right corner
@@ -115,18 +138,19 @@ void SPHSolver::leapFrog(float dt) {
     if (ovurc.y < pi->position.y) { ovurc.y = pi->position.y; }
   }
 
-//  createOccupancyVolume();
-  occupancy_volume = new SPHOccupancyVolume();
+  // create and populate the occupancy volume
+  createOccupancyVolume(ovllc, ovurc, particles.begin()->radius);
+  occupancy_volume->populateOccupancyVolume(&particles);
+
   pi = particles.begin();
   while(pi != particles.end()) {
-
     calculateDensity(&(*pi));
     ++pi;
   }
 
   pi = particles.begin();
   while(pi != particles.end()) {
-    pi->acceleration = force.evaluateForce(&particles, &(*pi));
+    pi->acceleration = force.evaluateForce(&particles, &(*pi), occupancy_volume);
     pi->velocity.x += pi->acceleration.x*dt;
     pi->velocity.y += pi->acceleration.y*dt;
     pi->position.x += pi->velocity.x*dt;
