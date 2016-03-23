@@ -317,7 +317,7 @@ int main(int argc, char** argv) {
   // validate flags
   if (party_mode != 0 && party_mode != 1) { handleError("Invalid usage of party mode flag", true); }
   if (write_on_start != 0 && write_on_start != 1) { handleError("Invalid usage of write on start flag", true); }
-  if (update_function_str.compare("S") != 0 && update_function_str.compare("S") != 0)
+  if (update_function_str.compare("S") != 0 && update_function_str.compare("LF") != 0)
     { handleError("Invalid usage of update_function flag", true); }
 
   // print key control usage

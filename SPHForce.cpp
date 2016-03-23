@@ -45,12 +45,13 @@ vector2 SPHForce::evaluateForce(std::vector<SPHParticle> *particles, SPHParticle
   vector2 grad_w;
   float pressure_a, pressure_b, viscosity_force;
   SPHParticle *a;
+  std::vector<size_t> check_indices;
 
-  std::vector<size_t> *cell = occupancy_volume->getCell(b);
+  occupancy_volume->getIndicesOfAllPossibleCollisions(b, &check_indices);
 
   force = vector2(0.0f, 0.0f);
-  for (unsigned int i = 0; i < cell->size(); ++i) {
-    a = &particles->at(cell->at(i));
+  for (unsigned int i = 0; i < check_indices.size(); ++i) {
+    a = &particles->at(check_indices.at(i));
     pressure_a = calculatePressure(&(*a));
     pressure_b = calculatePressure(b);
     grad_w = calculateGradW(b, &(*a), b->radius);

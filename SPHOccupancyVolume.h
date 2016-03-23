@@ -23,7 +23,10 @@ class SPHOccupancyVolume {
         // functions
         std::vector<size_t> *getCell(SPHParticle *p);
         void populateOccupancyVolume(std::vector<SPHParticle> *particles);
+        void getIndicesOfAllPossibleCollisions(SPHParticle *p, std::vector<size_t> *cell_indices);
 
+    private:
+        unsigned int getCellIndex(SPHParticle *p);
 };
 
 #endif //SPH_PARTICLE_SPHOCCUPANCYVOLUME_H

@@ -89,11 +89,12 @@ float SPHSolver::getInfluence(vector2 xb, vector2 xa, float h) {
 
 void SPHSolver::calculateDensity (SPHParticle *b) {
   SPHParticle *a;
-  std::vector<size_t> *cell = occupancy_volume->getCell(b);
+  std::vector<size_t> check_indices;
+  occupancy_volume->getIndicesOfAllPossibleCollisions(b, &check_indices);
 
   b->density = 0.0f;
-  for (unsigned int i = 0; i < cell->size(); ++i) {
-    a = &particles[cell->at(i)];
+  for (unsigned int i = 0; i < check_indices.size(); ++i) {
+    a = &particles[check_indices.at(i)];
     b->density += a->mass * getInfluence(b->position, a->position, a->radius);
   }
 }
