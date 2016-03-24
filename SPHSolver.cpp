@@ -137,8 +137,12 @@ void SPHSolver::leapFrog(float dt) {
     if (ovllc.y > pi->position.y) { ovllc.y = pi->position.y; }
     if (ovurc.x < pi->position.x) { ovurc.x = pi->position.x; }
     if (ovurc.y < pi->position.y) { ovurc.y = pi->position.y; }
+
     ++pi;
   }
+
+  occupancy_volume->ovllc = ovllc;
+  occupancy_volume->ovurc = ovurc;
 
   // create and populate the occupancy volume
   createOccupancyVolume(ovllc, ovurc, particles.begin()->radius);
