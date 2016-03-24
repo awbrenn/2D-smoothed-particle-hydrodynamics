@@ -304,6 +304,10 @@ void PrintUsage()
 //
 //----------------------------------------------------
 
+void setNbCores( int nb )
+{
+  omp_set_num_threads( nb );
+}
 
 int main(int argc, char** argv) {
   CmdLineFind clf(argc, argv);
@@ -339,6 +343,10 @@ int main(int argc, char** argv) {
 
   // get starting clock time for dynamic timestep in callbackIdle func
   clock_gettime(CLOCK_REALTIME, &start_time);
+
+  setNbCores(4);
+
+
 
   // initialize glut window
   glutInit(&argc, argv);

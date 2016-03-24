@@ -14,6 +14,7 @@
 #include "SPHOccupancyVolume.h"
 #include "math.h"
 #include <iostream>
+#include <omp.h>
 
 enum UPDATE_FUNCTION {LEAP_FROG, SIXTH};
 
