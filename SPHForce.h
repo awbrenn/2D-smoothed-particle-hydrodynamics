@@ -12,6 +12,7 @@
 #include "SPHOccupancyVolume.h"
 #include <math.h>
 #include <vector>
+#include <omp.h>
 
 class SPHForce {
   private:
