@@ -13,5 +13,5 @@ SPHParticle::SPHParticle(const vector2 _position, const vector2 _velocity, const
   velocity = _velocity;
   radius = _radius;
   mass = 1.0f;
-  color = {0.0, 1.0, 0.0};
+  color = {0.0, 0.0, 1.0};
 }

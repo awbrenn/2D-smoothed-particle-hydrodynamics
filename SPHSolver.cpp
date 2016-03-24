@@ -71,7 +71,7 @@ void SPHSolver::enforceBoundary(SPHParticle *p) {
     collision = true;
   }
   if (collision && party_mode) { randomizeColor(p); }
-  else if (!party_mode) { p->color = {0.0f, 1.0f, 0.0f}; }
+  //else if (!party_mode) { p->color = {0.0f, 1.0f, 0.0f}; }
 }
 
 
@@ -154,6 +154,9 @@ void SPHSolver::leapFrog(float dt) {
     ++pi;
   }
 
+  highest_velocity = 0.0001;
+  highest_density = 0.0001;
+
   pi = particles.begin();
   while(pi != particles.end()) {
     pi->acceleration = force.evaluateForce(&particles, &(*pi), occupancy_volume);
@@ -162,7 +165,31 @@ void SPHSolver::leapFrog(float dt) {
     pi->position.x += pi->velocity.x*dt;
     pi->position.y += pi->velocity.y*dt;
 
+    if (pi->velocity.length() > highest_velocity) { highest_velocity = pi->velocity.length(); }
+    if (pi->density > highest_density) { highest_density = pi->density; }
+
     enforceBoundary(&(*pi));
+    ++pi;
+  }
+
+  pi = particles.begin();
+  while(pi != particles.end()) {
+    float base_percentage, red_percentage, green_percentage, blue_percentage;
+    base_percentage = pi->velocity.length() / highest_velocity;
+
+
+    if (base_percentage <= 0.5f) { red_percentage = 0.0f; }
+    else { red_percentage = (1.0f - base_percentage)/0.5f; }
+
+    if (base_percentage >= 0.5f) { blue_percentage = 0.0f; }
+    else { blue_percentage = (0.5f - base_percentage)/0.5f; }
+
+    green_percentage = (0.5f - red_percentage/2.0f) + (0.5f - blue_percentage/2.0f);
+
+    pi->color.x = red_percentage;
+    pi->color.y = green_percentage;
+    pi->color.z = blue_percentage;
+
     ++pi;
   }
 }
