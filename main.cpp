@@ -201,16 +201,17 @@ void callbackDisplay( void )
 
 // animate and display new result
 void callbackIdle() {
-  // adding dynamic timestep based off of speed of the computer
-  timespec end_time;
-  clock_gettime(CLOCK_REALTIME, &end_time);
-  float delta_time = ((float)(end_time.tv_nsec - start_time.tv_nsec))*0.000000001f;
-  start_time = end_time;
+//  // adding dynamic timestep based off of speed of the computer
+//  timespec end_time;
+//  clock_gettime(CLOCK_REALTIME, &end_time);
+//  float delta_time = ((float)(end_time.tv_nsec - start_time.tv_nsec))*0.000000001f;
+//  start_time = end_time;
+//
+//  // cap delta_time wiht min and max values
+//  if (delta_time < 0.0f) { delta_time = 0.0f; }
+//  else if (delta_time > MAX_TIME_STEP) {delta_time = MAX_TIME_STEP; }
 
-  // cap delta_time wiht min and max values
-  if (delta_time < 0.0f) { delta_time = 0.0f; }
-  else if (delta_time > MAX_TIME_STEP) {delta_time = MAX_TIME_STEP; }
-
+  float delta_time = (1.0f/48.0f);
   if (!simulation_paused) { fluid->update(delta_time); }
   if (write_to_output) { writeImage(); }
   glutPostRedisplay();

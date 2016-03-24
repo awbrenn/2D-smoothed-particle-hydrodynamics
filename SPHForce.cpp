@@ -23,7 +23,7 @@ vector2 calculateGradW(SPHParticle *b, SPHParticle *a, float h) {
 
 float SPHForce::calculatePressure(SPHParticle *p) {
   float result;
-  result = beta*powf((p->density/density_base), gamma);
+  result = beta * (powf((p->density/density_base), gamma) -1.0f);
   return result;
 }
 
@@ -56,8 +56,8 @@ vector2 SPHForce::evaluateForce(std::vector<SPHParticle> *particles, SPHParticle
     pressure_b = calculatePressure(b);
     grad_w = calculateGradW(b, &(*a), b->radius);
     viscosity_force = calculateViscocityForce(b, &(*a), b->radius);
-    force += grad_w.scale((a->mass) * ((pressure_a / (a->density * a->density)) +
-                                        (pressure_b / ( b->density *  b->density)) +
+    force += grad_w.scale((a->mass) *  ((pressure_a / ( a->density * a->density)) +
+                                        (pressure_b / ( b->density * b->density)) +
                                          viscosity_force));
   }
   force = force.scale(-1.0f/b->mass);

@@ -29,7 +29,7 @@ SPHSolver::SPHSolver(unsigned int number_of_particles, const float _lower_bound,
   // initialize particles
   for (unsigned int i = 0; i < number_of_particles; ++i) {
     vector2 position;
-    position.x = getRandomFloatBetweenValues(lower_bound, upper_bound-1.5f);
+    position.x = getRandomFloatBetweenValues(lower_bound+0.5f, upper_bound-0.5f);
     position.y = getRandomFloatBetweenValues(lower_bound+1.0f, upper_bound-0.5f);
     vector2 velocity = {0.0f, 0.0f};
     particles.push_back(SPHParticle(position, velocity, h));
@@ -160,8 +160,8 @@ void SPHSolver::leapFrog(float dt) {
   pi = particles.begin();
   while(pi != particles.end()) {
     pi->acceleration = force.evaluateForce(&particles, &(*pi), occupancy_volume);
-    pi->velocity.x += pi->acceleration.x*dt;
-    pi->velocity.y += pi->acceleration.y*dt;
+    pi->velocity.x += pi->acceleration.x*dt*2.0f;
+    pi->velocity.y += pi->acceleration.y*dt*2.0f;
     pi->position.x += pi->velocity.x*dt;
     pi->position.y += pi->velocity.y*dt;
 
