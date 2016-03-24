@@ -176,19 +176,27 @@ void SPHSolver::leapFrog(float dt) {
   while(pi != particles.end()) {
     float base_percentage, red_percentage, green_percentage, blue_percentage;
     base_percentage = pi->velocity.length() / highest_velocity;
-
+    green_percentage = 0.0f;
 
     if (base_percentage <= 0.5f) { red_percentage = 0.0f; }
-    else { red_percentage = (1.0f - base_percentage)/0.5f; }
+    else {
+      red_percentage = (base_percentage - 0.5f)/0.5f;
+      green_percentage = 1.0f - red_percentage;
+    }
 
     if (base_percentage >= 0.5f) { blue_percentage = 0.0f; }
-    else { blue_percentage = (0.5f - base_percentage)/0.5f; }
-
-    green_percentage = (0.5f - red_percentage/2.0f) + (0.5f - blue_percentage/2.0f);
+    else {
+      blue_percentage = (0.5f - base_percentage)/0.5f;
+      green_percentage = 1.0f - blue_percentage;
+    }
 
     pi->color.x = red_percentage;
     pi->color.y = green_percentage;
     pi->color.z = blue_percentage;
+
+//    if (pi->velocity.length() == highest_velocity) {
+//      std::cout << pi->color.x << " " << pi->color.y << " " << pi->color.z << "\n" << std::endl;
+//    }
 
     ++pi;
   }
