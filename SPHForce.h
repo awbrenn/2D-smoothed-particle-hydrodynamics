@@ -21,11 +21,11 @@ class SPHForce {
 
   public:
     vector2 gravity = vector2(0.0f, -9.8f);
-    float density_base = 141.471060526f;
-    float gamma = 3.0f;
-    float beta = 10.0;
-    float viscosity = 5.0f;
-    float epsilon = 0.1f;
+    float density_base;
+    float gamma;
+    float beta;
+    float viscosity;
+    float epsilon;
 
     vector2 evaluateForce(std::vector<SPHParticle> *particles, SPHParticle *b, SPHOccupancyVolume *occupancy_volume);
 };

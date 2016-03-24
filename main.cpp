@@ -175,12 +175,21 @@ void drawScene()
 //----------------------------------------------------
 
 
-void initParticleSim(UPDATE_FUNCTION update_function, bool party_mode, const float h) {
+void initParticleSim(UPDATE_FUNCTION update_function, bool party_mode, float density_base, float beta, float gamma,
+                     float viscosity, float epsilon, const float h) {
+
   srand (static_cast <unsigned> (time(0)));
 
   fluid = new SPHSolver(500, 0.0f, 2.0f, h);
   fluid->update_function = update_function;
   fluid->party_mode = party_mode;
+
+  // setting force parameters
+  fluid->force.density_base = density_base;
+  fluid->force.beta = beta;
+  fluid->force.gamma = gamma;
+  fluid->force.viscosity = viscosity;
+  fluid->force.epsilon = epsilon;
 }
 
 
@@ -319,6 +328,12 @@ int main(int argc, char** argv) {
   string update_function_str = clf.find("-update_function", "S", "Function in update (options 'LF' for leap frog or 'S'"
                                         " for sixth)");
 
+  float density_base = clf.find("-density_base", 141.471060526f, "Base density for pressure calculation");
+  float beta = clf.find("-beta", 10.0f, "Constant for pressure calculation");
+  float gamma = clf.find("-gamma", 3.0f, "Gamma for pressure calculation");
+  float viscosity = clf.find("-viscosity", 5.0f, "Viscosity of the fluid");
+  float epsilon = clf.find("-epsilon", 0.1f, "Another factor used in the denominator of the viscosity calculation");
+
   // validate flags
   if (party_mode != 0 && party_mode != 1) { handleError("Invalid usage of party mode flag", true); }
   if (write_on_start != 0 && write_on_start != 1) { handleError("Invalid usage of write on start flag", true); }
@@ -337,7 +352,7 @@ int main(int argc, char** argv) {
 
   float h = 0.15;
 
-  initParticleSim(update_function, party_mode != 0, h);
+  initParticleSim(update_function, party_mode != 0, density_base, beta, gamma, viscosity, epsilon, h);
 
   // decide whether to write to output or not
   write_to_output = write_on_start != 0;
