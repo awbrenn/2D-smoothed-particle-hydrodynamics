@@ -71,7 +71,6 @@ void SPHSolver::enforceBoundary(SPHParticle *p) {
     collision = true;
   }
   if (collision && party_mode) { randomizeColor(p); }
-  //else if (!party_mode) { p->color = {0.0f, 1.0f, 0.0f}; }
 }
 
 

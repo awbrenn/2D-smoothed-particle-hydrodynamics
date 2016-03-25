@@ -210,16 +210,6 @@ void callbackDisplay( void )
 
 // animate and display new result
 void callbackIdle() {
-//  // adding dynamic timestep based off of speed of the computer
-//  timespec end_time;
-//  clock_gettime(CLOCK_REALTIME, &end_time);
-//  float delta_time = ((float)(end_time.tv_nsec - start_time.tv_nsec))*0.000000001f;
-//  start_time = end_time;
-//
-//  // cap delta_time wiht min and max values
-//  if (delta_time < 0.0f) { delta_time = 0.0f; }
-//  else if (delta_time > MAX_TIME_STEP) {delta_time = MAX_TIME_STEP; }
-
   float delta_time = (1.0f/48.0f);
   if (!simulation_paused) { fluid->update(delta_time); }
   if (write_to_output) { writeImage(); }
@@ -329,9 +319,9 @@ int main(int argc, char** argv) {
                                         " for sixth)");
 
   float density_base = clf.find("-density_base", 141.471060526f, "Base density for pressure calculation");
-  float beta = clf.find("-beta", 10.0f, "Constant for pressure calculation");
+  float beta = clf.find("-beta", 1.0f, "Constant for pressure calculation");
   float gamma = clf.find("-gamma", 3.0f, "Gamma for pressure calculation");
-  float viscosity = clf.find("-viscosity", 5.0f, "Viscosity of the fluid");
+  float viscosity = clf.find("-viscosity", 1.0f, "Viscosity of the fluid");
   float epsilon = clf.find("-epsilon", 0.1f, "Another factor used in the denominator of the viscosity calculation");
 
   // validate flags
